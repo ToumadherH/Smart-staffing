@@ -1,0 +1,113 @@
+<div class="consultant-form-page">
+  <header class="page-header">
+    <div class="header-nav">
+      <a routerLink="/consultants" class="back-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        Back to Consultants
+      </a>
+      <h1>{{ id ? 'Edit Consultant' : 'Add Consultant' }}</h1>
+      <p>Maintain the consultant profile and skill inventory.</p>
+    </div>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="form-card card-panel">
+    <div class="form-section">
+      <h2>Profile Information</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="name">Full name *</label>
+          <input id="name" formControlName="name" placeholder="e.g. Marcus Chen">
+          @if (form.get('name')?.touched && form.get('name')?.invalid) {
+            <span class="field-error">Full name is required.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email address *</label>
+          <input id="email" type="email" formControlName="email" placeholder="name@company.com">
+          @if (form.get('email')?.touched && form.get('email')?.invalid) {
+            <span class="field-error">Valid email address is required.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone number</label>
+          <input id="phone" formControlName="phone" placeholder="+1 (555) 000-0000">
+        </div>
+
+        <div class="form-group">
+          <label for="location">Location</label>
+          <input id="location" formControlName="location" placeholder="e.g. Tunis, Tunisia">
+        </div>
+
+        <div class="form-group">
+          <label for="yearsOfExperience">Years of experience *</label>
+          <input id="yearsOfExperience" type="number" min="0" formControlName="yearsOfExperience">
+          @if (form.get('yearsOfExperience')?.touched && form.get('yearsOfExperience')?.invalid) {
+            <span class="field-error">Years of experience must be 0 or greater.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="availability">Availability *</label>
+          <select id="availability" formControlName="availability">
+            <option value="AVAILABLE">Available</option>
+            <option value="ASSIGNED">On Mission / Assigned</option>
+            <option value="ON_LEAVE">Training / On Leave</option>
+          </select>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="currentMission">Current mission</label>
+          <input id="currentMission" formControlName="currentMission" placeholder="Current project, client, or mission details">
+        </div>
+
+        <div class="form-group full-width">
+          <label for="languagesText">Languages <span class="label-hint">(comma separated)</span></label>
+          <input id="languagesText" formControlName="languagesText" placeholder="French, English, Arabic">
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <div class="form-section">
+      <div class="section-header-row">
+        <h2>Skills</h2>
+        <button type="button" class="btn-secondary add-skill-btn" (click)="addSkill()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Add Skill
+        </button>
+      </div>
+
+      <div formArrayName="skills" class="skills-rows">
+        @for (skill of skills.controls; track $index) {
+          <div class="skill-row" [formGroupName]="$index">
+            <div class="form-group flex-2">
+              <input formControlName="name" placeholder="Skill name (e.g. React, Java, AWS)">
+            </div>
+            <div class="form-group flex-1">
+              <input formControlName="category" placeholder="Category (e.g. Frontend, Backend)">
+            </div>
+            <button type="button" class="btn-danger remove-btn" (click)="removeSkill($index)" [disabled]="skills.length === 1">
+              Remove
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (error) {
+      <div class="error-banner">
+        {{ error }}
+      </div>
+    }
+
+    <footer class="form-footer">
+      <a routerLink="/consultants" class="btn-secondary">Cancel</a>
+      <button type="submit" class="btn-primary save-btn" [disabled]="saving">
+        {{ saving ? 'Saving…' : 'Save Consultant' }}
+      </button>
+    </footer>
+  </form>
+</div>

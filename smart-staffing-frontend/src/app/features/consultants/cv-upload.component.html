@@ -1,0 +1,57 @@
+<div class="cv-upload-page">
+  <header class="page-header">
+    <div class="header-nav">
+      <a [routerLink]="['/consultants', id]" class="back-link">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        Back to Consultant Profile
+      </a>
+      <h1>Upload CV / Resume</h1>
+      <p>Add a PDF or Word document for <strong>{{ consultant?.name || 'this consultant' }}</strong>.</p>
+    </div>
+  </header>
+
+  <section class="card-panel upload-card" (drop)="drop($event)" (dragover)="dragover($event)">
+    <div class="dropzone-content">
+      <div class="upload-icon-circle">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+      </div>
+      <h2>Drag &amp; Drop CV File Here</h2>
+      <p class="dropzone-sub">or click to select from your computer (PDF, DOC, DOCX up to 10MB)</p>
+
+      <input #fileInput type="file" accept=".pdf,.doc,.docx" (change)="select($event)" hidden>
+      <button type="button" class="btn-secondary browse-btn" (click)="fileInput.click()">
+        Browse Files
+      </button>
+
+      @if (file) {
+        <div class="selected-file-badge">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>Selected: <strong>{{ file.name }}</strong> ({{ (file.size / 1024 / 1024) | number:'1.1-2' }} MB)</span>
+        </div>
+      }
+    </div>
+  </section>
+
+  @if (error) {
+    <div class="error-banner">
+      {{ error }}
+    </div>
+  }
+
+  @if (success) {
+    <div class="success-banner">
+      {{ success }}
+    </div>
+  }
+
+  <footer class="form-footer">
+    <a [routerLink]="['/consultants', id]" class="btn-secondary">Cancel</a>
+    <button class="btn-primary upload-submit-btn" (click)="upload()" [disabled]="uploading || !file">
+      {{ uploading ? 'Uploading…' : 'Upload CV' }}
+    </button>
+  </footer>
+</div>

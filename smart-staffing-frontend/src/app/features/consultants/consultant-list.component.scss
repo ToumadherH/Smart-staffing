@@ -1,0 +1,242 @@
+.consultants-directory-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  .header-title {
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    p {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 12px;
+  }
+}
+
+.directory-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  background: #F8FAFC;
+  border-bottom: 1px solid var(--border-color);
+
+  .filter-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .filter-group {
+    input, select {
+      height: 40px;
+      padding: 8px 14px;
+      border: 1px solid #D0D5DD;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #FFFFFF;
+      color: var(--text-dark);
+      outline: none;
+
+      &:focus {
+        border-color: var(--primary);
+      }
+    }
+  }
+}
+
+.state-message {
+  padding: 48px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 15px;
+
+  &.error {
+    color: #B42318;
+  }
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: #F8FAFC;
+  }
+
+  td {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 14px;
+    color: var(--text-dark);
+    vertical-align: middle;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+}
+
+.avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #E0E7FF;
+  color: #3730A3;
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.person-cell {
+  display: flex;
+  flex-direction: column;
+
+  .person-name {
+    font-weight: 600;
+    color: var(--text-dark);
+    text-decoration: none;
+    font-size: 14px;
+
+    &:hover {
+      color: var(--primary);
+    }
+  }
+
+  .person-email {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+}
+
+.skill-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.score-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 13px;
+
+  .score-bar {
+    width: 70px;
+    height: 8px;
+    background: #F1F5F9;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .score-fill {
+    height: 100%;
+    background: #2563EB;
+    border-radius: 4px;
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+
+  .action-link {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.empty-cell {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 32px !important;
+}
+
+.pagination-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-color);
+  background: #FFFFFF;
+
+  .pagination-info {
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  .pagination-pages {
+    display: flex;
+    gap: 6px;
+
+    .page-btn {
+      height: 36px;
+      min-width: 36px;
+      padding: 0 12px;
+      border: 1px solid #D0D5DD;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      background: #FFFFFF;
+      color: var(--text-main);
+
+      &.active {
+        background: var(--primary);
+        color: #FFFFFF;
+        border-color: var(--primary);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .filter-bar {
+    flex-wrap: wrap;
+  }
+}
