@@ -1,0 +1,19 @@
+# Java
+smart-staffing-backend/target/
+
+# Angular
+smart-staffing-frontend/node_modules/
+smart-staffing-frontend/dist/
+smart-staffing-frontend/.angular/
+
+# Local runtime data and secrets
+smart-staffing-backend/uploads/
+smart-staffing-backend/run.log
+docs/
+.env
+.env.*
+
+# IDE files
+.idea/
+*.iml
+.vscode/
