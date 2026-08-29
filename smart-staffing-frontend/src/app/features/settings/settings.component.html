@@ -1,0 +1,85 @@
+<div class="settings-page">
+  <header class="page-top-header">
+    <div>
+      <h1 class="page-title">Platform Settings &amp; Preferences</h1>
+      <p class="page-subtitle">Configure organization details, AI matching parameters, and notification preferences.</p>
+    </div>
+  </header>
+
+  @if (savedMessage) {
+    <div class="success-banner card-panel">
+      ✓ Settings saved successfully.
+    </div>
+  }
+
+  <div class="settings-grid">
+    <!-- Organization & Account -->
+    <div class="card-panel settings-card">
+      <h2>Organization &amp; HR Profile</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Company / Organization</label>
+          <input [(ngModel)]="orgName">
+        </div>
+        <div class="form-group">
+          <label>HR Member Email</label>
+          <input [(ngModel)]="hrEmail" disabled>
+        </div>
+      </div>
+
+      <div class="checkbox-group margin-top">
+        <label class="check-row">
+          <input type="checkbox" [(ngModel)]="notificationsEnabled">
+          <span>Enable email notifications for new candidate matches</span>
+        </label>
+        <label class="check-row">
+          <input type="checkbox" [(ngModel)]="interviewReminders">
+          <span>Send automated interview calendar reminders (24h before)</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- AI Scoring & Matching Engine Configuration -->
+    <div class="card-panel settings-card">
+      <h2>AI Talent Matching Configuration</h2>
+      <p class="section-desc">Adjust the weighting parameters used by the AI engine to rank candidate compatibility.</p>
+
+      <div class="weights-sliders">
+        <div class="slider-row">
+          <div class="slider-label">
+            <span>Skill Match Weight</span>
+            <strong>{{ skillWeight }}%</strong>
+          </div>
+          <input type="range" min="30" max="80" [(ngModel)]="skillWeight">
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-label">
+            <span>Experience Level Weight</span>
+            <strong>{{ experienceWeight }}%</strong>
+          </div>
+          <input type="range" min="10" max="40" [(ngModel)]="experienceWeight">
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-label">
+            <span>Availability Status Weight</span>
+            <strong>{{ availabilityWeight }}%</strong>
+          </div>
+          <input type="range" min="10" max="40" [(ngModel)]="availabilityWeight">
+        </div>
+      </div>
+
+      <div class="checkbox-group margin-top">
+        <label class="check-row">
+          <input type="checkbox" [(ngModel)]="semanticFallback">
+          <span>Enable rule-based semantic fallback when LLM quotas are reached</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <footer class="settings-footer">
+    <button class="btn-primary" (click)="saveSettings()">Save Changes</button>
+  </footer>
+</div>

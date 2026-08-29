@@ -1,0 +1,129 @@
+.settings-page {
+  padding: 24px 32px 48px 32px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.page-top-header {
+  margin-bottom: 24px;
+
+  .page-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #101828;
+    margin: 0 0 6px 0;
+  }
+
+  .page-subtitle {
+    font-size: 14px;
+    color: #475467;
+    margin: 0;
+  }
+}
+
+.success-banner {
+  background: #ECFDF5;
+  color: #047857;
+  border-left: 4px solid #10B981;
+  padding: 12px 18px;
+  margin-bottom: 20px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.settings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  .settings-card {
+    background: #FFFFFF;
+    border: 1px solid #EAECF0;
+    border-radius: 12px;
+    padding: 24px 28px;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.05);
+
+    h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #101828;
+      margin: 0 0 4px 0;
+    }
+
+    .section-desc {
+      font-size: 13px;
+      color: #667085;
+      margin: 0 0 20px 0;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      &.margin-top {
+        margin-top: 18px;
+        padding-top: 16px;
+        border-top: 1px solid #F2F4F7;
+      }
+
+      .check-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13px;
+        color: #344054;
+        cursor: pointer;
+
+        input[type="checkbox"] {
+          width: 16px;
+          height: 16px;
+          accent-color: #2563EB;
+        }
+      }
+    }
+
+    .weights-sliders {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      max-width: 600px;
+
+      .slider-row {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+
+        .slider-label {
+          display: flex;
+          justify-content: space-between;
+          font-size: 13px;
+          font-weight: 500;
+          color: #344054;
+
+          strong {
+            color: #2563EB;
+            font-weight: 700;
+          }
+        }
+
+        input[type="range"] {
+          width: 100%;
+          accent-color: #2563EB;
+        }
+      }
+    }
+  }
+}
+
+.settings-footer {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+}

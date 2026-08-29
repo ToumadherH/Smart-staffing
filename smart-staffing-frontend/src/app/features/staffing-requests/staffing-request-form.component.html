@@ -1,0 +1,93 @@
+<div class="form-page">
+  <header class="page-header">
+    <div class="header-title">
+      <a routerLink="/staffing-requests" class="back-link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Back to Staffing Requests
+      </a>
+      <h1>New Staffing Request</h1>
+      <p>Create a talent requisition for client staffing projects.</p>
+    </div>
+  </header>
+
+  @if (errorMessage) {
+    <div class="alert-banner alert-danger">{{ errorMessage }}</div>
+  }
+
+  <form (ngSubmit)="save()" class="form-card">
+    <div class="form-section">
+      <h3>Position & Client Details</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="req-title">Position Title <span class="required">*</span></label>
+          <input id="req-title" [(ngModel)]="title" name="title" required placeholder="e.g. Senior Frontend Engineer">
+        </div>
+
+        <div class="form-group">
+          <label for="req-client">Client Name <span class="required">*</span></label>
+          <input id="req-client" [(ngModel)]="clientName" name="clientName" required placeholder="e.g. Acme Corp">
+        </div>
+
+        <div class="form-group">
+          <label for="req-loc">Location</label>
+          <input id="req-loc" [(ngModel)]="location" name="location" placeholder="e.g. Tunis, Tunisia / Remote">
+        </div>
+
+        <div class="form-group">
+          <label for="req-exp">Min. Years of Experience</label>
+          <input id="req-exp" type="number" [(ngModel)]="yearsOfExperienceRequired" name="yearsOfExperienceRequired" min="0">
+        </div>
+
+        <div class="form-group">
+          <label for="req-status">Status</label>
+          <select id="req-status" [(ngModel)]="status" name="status">
+            <option value="OPEN">OPEN</option>
+            <option value="IN_PROGRESS">IN_PROGRESS</option>
+            <option value="FULFILLED">FULFILLED</option>
+            <option value="CLOSED">CLOSED</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group full-width margin-top">
+        <label for="req-desc">Description & Requirements</label>
+        <textarea id="req-desc" [(ngModel)]="description" name="description" rows="4" placeholder="Detail the role responsibilities and qualifications..."></textarea>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>Required Skills</h3>
+      <p class="section-desc">Specify technical or soft skills required for matching candidates.</p>
+
+      <div class="skill-input-row">
+        <input [(ngModel)]="newSkillName" name="newSkillName" placeholder="Skill name (e.g. Angular, Spring Boot)" (keyup.enter)="addSkill()">
+        <select [(ngModel)]="newSkillCategory" name="newSkillCategory">
+          <option value="Technical">Technical</option>
+          <option value="Framework">Framework</option>
+          <option value="Cloud/DevOps">Cloud/DevOps</option>
+          <option value="Soft Skills">Soft Skills</option>
+        </select>
+        <button type="button" class="btn-secondary" (click)="addSkill()">Add Skill</button>
+      </div>
+
+      <div class="skills-tags-container">
+        @for (s of skills; track s.name; let i = $index) {
+          <span class="skill-chip">
+            {{ s.name }} ({{ s.category }})
+            <button type="button" class="remove-chip" (click)="removeSkill(i)">×</button>
+          </span>
+        }
+        @if (skills.length === 0) {
+          <span class="empty-skills">No skills added yet. Add required skills above.</span>
+        }
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <a routerLink="/staffing-requests" class="btn-secondary">Cancel</a>
+      <button type="submit" class="btn-primary" [disabled]="submitting">
+        {{ submitting ? 'Saving...' : 'Save Request' }}
+      </button>
+    </div>
+  </form>
+</div>

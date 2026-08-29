@@ -9,107 +9,376 @@
   </div>
 } @else {
   <div class="consultant-details-page">
-    <header class="page-header">
-      <div class="header-left">
-        <a routerLink="/consultants" class="back-link">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
-          Back to Consultants
-        </a>
-        <div class="title-row">
-          <div class="avatar-circle">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-nav">
+      <a routerLink="/consultants" class="bc-back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        Back to Search Results
+      </a>
+      <span class="bc-slash">/</span>
+      <span class="bc-name">{{ consultant.name }}</span>
+    </div>
+
+    <!-- Header Card -->
+    <section class="card-panel consultant-header-card">
+      <div class="header-main-info">
+        <div class="avatar-wrapper">
+          <div class="avatar-circle-lg">
             {{ consultant.name.charAt(0).toUpperCase() }}
           </div>
-          <div>
-            <h1>{{ consultant.name }}</h1>
-            <p class="subtitle">{{ consultant.email }} · {{ consultant.location || 'Location not set' }}</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="header-actions">
-        <a [routerLink]="['/consultants', consultant.id, 'edit']" class="btn-secondary">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-          Edit Profile
-        </a>
-        <button class="btn-danger" (click)="delete()">Delete</button>
-      </div>
-    </header>
-
-    <div class="details-layout">
-      <!-- Main Info Panel -->
-      <section class="card-panel profile-card">
-        <h2>Consultant Profile</h2>
-        <div class="info-grid">
-          <div class="info-item">
-            <span class="info-label">Phone Number</span>
-            <span class="info-value">{{ consultant.phone || '—' }}</span>
-          </div>
-
-          <div class="info-item">
-            <span class="info-label">Experience</span>
-            <span class="info-value">{{ consultant.yearsOfExperience }} years</span>
-          </div>
-
-          <div class="info-item">
-            <span class="info-label">Availability</span>
-            <span class="badge" [class.badge-available]="consultant.availability === 'AVAILABLE'" [class.badge-assigned]="consultant.availability === 'ASSIGNED'" [class.badge-on-leave]="consultant.availability === 'ON_LEAVE'">
-              {{ consultant.availability }}
-            </span>
-          </div>
-
-          <div class="info-item">
-            <span class="info-label">Current Mission</span>
-            <span class="info-value">{{ consultant.currentMission || '—' }}</span>
-          </div>
-
-          <div class="info-item full-width">
-            <span class="info-label">Languages</span>
-            <span class="info-value">{{ (consultant.languages || []).join(', ') || '—' }}</span>
-          </div>
         </div>
 
-        <hr class="section-divider">
+        <div class="profile-details-col">
+          <div class="name-title-row">
+            <h1 class="consultant-name">{{ consultant.name }}</h1>
+          </div>
 
-        <h2>Skills Portfolio</h2>
-        <div class="skills-grid">
-          @for (skill of consultant.skills; track skill.name) {
-            <div class="skill-tag">
-              <strong class="skill-name">{{ skill.name }}</strong>
-              <span class="skill-cat">{{ skill.category || 'Technical' }}</span>
+          <p class="profile-subtitle">
+            @if (consultant.currentMission) {
+              {{ consultant.currentMission }}
+              @if (consultant.yearsOfExperience > 0) { • }
+            }
+            @if (consultant.yearsOfExperience > 0) {
+              {{ consultant.yearsOfExperience }}+ Years Exp.
+            }
+            @if (consultant.location) {
+              @if (consultant.yearsOfExperience > 0 || consultant.currentMission) { • }
+              {{ consultant.location }}
+            }
+          </p>
+
+          @if (consultant.languages && consultant.languages.length > 0) {
+            <div class="meta-tags-row">
+              <div class="meta-tag-chip">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                <span>{{ consultant.languages.join(', ') }}</span>
+              </div>
             </div>
           }
-          @if (consultant.skills.length === 0) {
-            <p class="text-muted">No skills recorded yet.</p>
-          }
         </div>
-      </section>
+      </div>
 
-      <!-- Sidebar CV Panel -->
-      <section class="card-panel cv-card">
-        <h2>Resume / CV</h2>
+      <div class="header-action-buttons">
+        <button class="btn-primary schedule-btn" (click)="openScheduleModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          Schedule Interview
+        </button>
+
         @if (consultant.cv) {
-          <div class="cv-info-box">
-            <div class="file-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-            </div>
-            <div class="file-details">
-              <strong>{{ consultant.cv.fileName }}</strong>
-              <span class="file-date">Uploaded {{ consultant.cv.uploadedAt | date:'mediumDate' }}</span>
-            </div>
-          </div>
-
-          <button class="btn-secondary download-btn" (click)="download()">
+          <button class="btn-secondary download-cv-btn" (click)="download()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             Download CV
           </button>
-        } @else {
-          <p class="no-cv-text">No CV document has been uploaded yet.</p>
         }
 
-        <a [routerLink]="['/consultants', consultant.id, 'cv']" class="btn-primary upload-btn">
-          {{ consultant.cv ? 'Replace CV' : 'Upload CV' }}
-        </a>
-      </section>
+        <a [routerLink]="['/consultants', consultant.id, 'edit']" class="btn-secondary">Edit</a>
+      </div>
+    </section>
+
+    <!-- 2-Column Body Layout -->
+    <div class="profile-two-column-layout">
+      <!-- Left Column: Tabs & Content -->
+      <div class="left-content-column">
+        <!-- Navigation Tabs -->
+        <div class="tabs-nav-bar">
+          <button class="tab-nav-btn" [class.active]="activeTab === 'overview'" (click)="setTab('overview')">
+            Overview
+          </button>
+          <button class="tab-nav-btn" [class.active]="activeTab === 'skills'" (click)="setTab('skills')">
+            Skills &amp; Expertise
+          </button>
+          <button class="tab-nav-btn" [class.active]="activeTab === 'resume'" (click)="setTab('resume')">
+            Full Resume / CV
+          </button>
+        </div>
+
+        <!-- Tab 1: Overview -->
+        @if (activeTab === 'overview') {
+          <div class="tab-card card-panel">
+            <section class="overview-section">
+              <h2 class="section-title">Consultant Profile</h2>
+
+              <div class="profile-facts-grid">
+                @if (consultant.email) {
+                  <div class="fact-row">
+                    <span class="fact-label">Email</span>
+                    <span class="fact-value">{{ consultant.email }}</span>
+                  </div>
+                }
+                @if (consultant.phone) {
+                  <div class="fact-row">
+                    <span class="fact-label">Phone</span>
+                    <span class="fact-value">{{ consultant.phone }}</span>
+                  </div>
+                }
+                @if (consultant.location) {
+                  <div class="fact-row">
+                    <span class="fact-label">Location</span>
+                    <span class="fact-value">{{ consultant.location }}</span>
+                  </div>
+                }
+                @if (consultant.yearsOfExperience > 0) {
+                  <div class="fact-row">
+                    <span class="fact-label">Experience</span>
+                    <span class="fact-value">{{ consultant.yearsOfExperience }}+ Years</span>
+                  </div>
+                }
+                @if (consultant.availability) {
+                  <div class="fact-row">
+                    <span class="fact-label">Availability</span>
+                    <span class="fact-value avail-badge" [class.avail-available]="consultant.availability === 'AVAILABLE'" [class.avail-assigned]="consultant.availability === 'ASSIGNED'">
+                      {{ consultant.availability === 'AVAILABLE' ? 'Available' : consultant.availability === 'ASSIGNED' ? 'On Mission' : consultant.availability }}
+                    </span>
+                  </div>
+                }
+                @if (consultant.currentMission) {
+                  <div class="fact-row">
+                    <span class="fact-label">Current Mission</span>
+                    <span class="fact-value">{{ consultant.currentMission }}</span>
+                  </div>
+                }
+                @if (consultant.languages && consultant.languages.length > 0) {
+                  <div class="fact-row">
+                    <span class="fact-label">Languages</span>
+                    <span class="fact-value">{{ consultant.languages.join(', ') }}</span>
+                  </div>
+                }
+              </div>
+
+              @if (consultant.skills && consultant.skills.length === 0 && !consultant.cv) {
+                <p class="no-data-hint">Upload a CV to automatically extract skills and work history.</p>
+              }
+            </section>
+          </div>
+        }
+
+        <!-- Tab 2: Skills & Expertise -->
+        @if (activeTab === 'skills') {
+          <div class="tab-card card-panel">
+            <h2 class="section-title">Skills &amp; Technical Expertise</h2>
+            @if (consultant.skills && consultant.skills.length > 0) {
+              <div class="skills-chips-cloud">
+                @for (skill of consultant.skills; track skill.name) {
+                  <div class="skill-pill-item">
+                    <strong class="skill-name">{{ skill.name }}</strong>
+                    @if (skill.category) {
+                      <span class="skill-category-tag">{{ skill.category }}</span>
+                    }
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="no-data-hint">No skills recorded yet. Upload a CV or edit the profile to add skills.</p>
+            }
+          </div>
+        }
+
+        <!-- Tab 3: Full Resume / CV -->
+        @if (activeTab === 'resume') {
+          <div class="tab-card card-panel">
+            <div class="resume-header">
+              <h2 class="section-title">Resume / CV Document</h2>
+              <a [routerLink]="['/consultants', consultant.id, 'cv']" class="btn-secondary">
+                {{ consultant.cv ? 'Replace CV' : 'Upload CV' }}
+              </a>
+            </div>
+
+            @if (consultant.cv) {
+              <div class="cv-meta-box">
+                <p>
+                  <strong>File:</strong> {{ consultant.cv.fileName }}
+                  <span class="text-muted">(Uploaded {{ consultant.cv.uploadedAt | date:'mediumDate' }})</span>
+                </p>
+
+                @if (consultant.cv.extractedSkillsText) {
+                  <div class="extracted-field">
+                    <strong>Extracted Skills:</strong>
+                    <p>{{ consultant.cv.extractedSkillsText }}</p>
+                  </div>
+                }
+
+                @if (consultant.cv.extractedEmail) {
+                  <p><strong>CV Email:</strong> {{ consultant.cv.extractedEmail }}</p>
+                }
+
+                @if (consultant.cv.extractedPhone) {
+                  <p><strong>CV Phone:</strong> {{ consultant.cv.extractedPhone }}</p>
+                }
+
+                @if (consultant.cv.extractedText) {
+                  <div class="extracted-text-section">
+                    <strong>Extracted Text Preview:</strong>
+                    <pre class="cv-text-preview">{{ consultant.cv.extractedText | slice:0:2000 }}{{ consultant.cv.extractedText.length > 2000 ? '…' : '' }}</pre>
+                }
+
+                <div class="cv-actions">
+                  <button class="btn-primary" (click)="download()">
+                    Download CV
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <div class="no-cv-state">
+                <p class="no-data-hint">No CV uploaded yet.</p>
+                <a [routerLink]="['/consultants', consultant.id, 'cv']" class="btn-primary">Upload CV</a>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Right Column: Sidebar Cards -->
+      <div class="right-sidebar-column">
+        <!-- Card 1: AI Match Analysis (only if a request is in context) -->
+        @if (activeRequest && matchScore !== null) {
+          <div class="card-panel match-analysis-card">
+            <div class="analysis-header-row">
+              <div class="title-with-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <h3>AI Match Analysis</h3>
+              </div>
+            </div>
+
+            <div class="role-match-score-row">
+              <span class="match-role-text">Role: {{ activeRequest.title }} (Req #{{ activeRequest.id }})</span>
+              <strong class="match-percent">{{ matchScore }}%</strong>
+            </div>
+
+            <div class="score-progress-bar-track">
+              <div class="score-progress-fill" [style.width.%]="matchScore"></div>
+            </div>
+
+            <!-- Requirements breakdown -->
+            <div class="match-breakdown-groups">
+              @if (matchedSkills.length > 0) {
+                <div class="breakdown-group">
+                  <div class="group-label-row text-success">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <span>MATCHED REQUIREMENTS</span>
+                  </div>
+                  <div class="chips-wrap">
+                    @for (skill of matchedSkills; track skill) {
+                      <span class="skill-chip chip-matched">{{ skill }}</span>
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (bonusSkills.length > 0) {
+                <div class="breakdown-group">
+                  <div class="group-label-row text-warning">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    <span>ADDITIONAL SKILLS (BONUS)</span>
+                  </div>
+                  <div class="chips-wrap">
+                    @for (skill of bonusSkills; track skill) {
+                      <span class="skill-chip chip-bonus">{{ skill }}</span>
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (missingSkills.length > 0) {
+                <div class="breakdown-group">
+                  <div class="group-label-row text-danger">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    <span>MISSING REQUIREMENTS</span>
+                  </div>
+                  <div class="chips-wrap">
+                    @for (skill of missingSkills; track skill) {
+                      <span class="skill-chip chip-missing">{{ skill }}</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+
+            <div class="gap-analysis-link-row">
+              <a [routerLink]="['/ai-matching', activeRequest.id, 'gap', consultant.id]" class="gap-link">
+                View Detailed Skill Gap Analysis →
+              </a>
+            </div>
+          </div>
+        }
+
+        <!-- Card 2: Competency Matrix — built from actual skills -->
+        @if (competencies.length > 0) {
+          <div class="card-panel competency-card">
+            <h3>Competency Overview</h3>
+            <p class="card-note">Derived from recorded skills</p>
+            <div class="competencies-list">
+              @for (comp of competencies; track comp.name) {
+                <div class="competency-item">
+                  <div class="comp-label-row">
+                    <span class="comp-name">{{ comp.name }}</span>
+                    <span class="comp-level">{{ comp.level }}</span>
+                  </div>
+
+                  <div class="segmented-bar">
+                    <span class="seg" [class.filled]="comp.score >= 1"></span>
+                    <span class="seg" [class.filled]="comp.score >= 2"></span>
+                    <span class="seg" [class.filled]="comp.score >= 3"></span>
+                    <span class="seg" [class.filled]="comp.score >= 4"></span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
     </div>
+
+    <!-- Schedule Interview Modal -->
+    @if (showScheduleModal) {
+      <div class="modal-backdrop" (click)="closeScheduleModal()">
+        <div class="modal-card" (click)="$event.stopPropagation()">
+          <header class="modal-header">
+            <h3>Schedule Interview with {{ consultant.name }}</h3>
+            <button class="close-btn" (click)="closeScheduleModal()">×</button>
+          </header>
+
+          @if (scheduleSuccess) {
+            <div class="success-banner">✓ Interview scheduled successfully! Redirecting...</div>
+          }
+
+          <div class="modal-body">
+            @if (activeRequest) {
+              <div class="form-group">
+                <label>Role / Staffing Request</label>
+                <input [value]="activeRequest.title + ' – ' + activeRequest.clientName" disabled>
+              </div>
+            }
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Date</label>
+                <input type="date" [(ngModel)]="interviewDate">
+              </div>
+              <div class="form-group">
+                <label>Time</label>
+                <input type="time" [(ngModel)]="interviewTime">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Location / Video Link</label>
+              <input [(ngModel)]="interviewLocation" placeholder="Google Meet, Zoom, Teams">
+            </div>
+
+            <div class="form-group">
+              <label>Interview Notes</label>
+              <textarea [(ngModel)]="interviewNotes" rows="3"></textarea>
+            </div>
+          </div>
+
+          <footer class="modal-footer">
+            <button class="btn-secondary" (click)="closeScheduleModal()">Cancel</button>
+            <button class="btn-primary" (click)="confirmSchedule()" [disabled]="scheduling || scheduleSuccess">
+              {{ scheduling ? 'Scheduling...' : 'Schedule Interview' }}
+            </button>
+          </footer>
+        </div>
+      </div>
+    }
   </div>
 }

@@ -1,0 +1,162 @@
+<div class="list-page">
+  <header class="page-header">
+    <div class="header-left">
+      <h1>Staffing Requests</h1>
+      <p class="subtitle">Manage client talent requisitions and matching status.</p>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/staffing-requests/new" class="btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        New Request
+      </a>
+    </div>
+  </header>
+
+  <div class="toolbar-card">
+    <div class="search-box">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#667085" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input [(ngModel)]="search" (ngModelChange)="filter()" placeholder="Search by title, client, or skill..." aria-label="Search staffing requests">
+    </div>
+
+    <div class="filter-controls">
+      <select [(ngModel)]="statusFilter" (ngModelChange)="filter()" aria-label="Filter status">
+        <option value="">All Statuses</option>
+        <option value="OPEN">OPEN</option>
+        <option value="IN_PROGRESS">IN_PROGRESS</option>
+        <option value="FULFILLED">FULFILLED</option>
+        <option value="CLOSED">CLOSED</option>
+      </select>
+    </div>
+  </div>
+
+  @if (error) {
+    <div class="error-banner">{{ error }}</div>
+  }
+
+  <div class="table-card">
+    @if (loading) {
+      <div class="loading-state">Loading staffing requests...</div>
+    } @else {
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>CLIENT & POSITION</th>
+            <th>LOCATION</th>
+            <th>EXPERIENCE REQ.</th>
+            <th>REQUIRED SKILLS</th>
+            <th>STATUS</th>
+            <th>ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (req of filtered; track req.id) {
+            <tr>
+              <td>
+                <div class="position-cell">
+                  <strong>{{ req.title }}</strong>
+                  <span class="client-name">{{ req.clientName }}</span>
+                </div>
+              </td>
+              <td>{{ req.location || '—' }}</td>
+              <td>{{ req.yearsOfExperienceRequired != null ? req.yearsOfExperienceRequired + ' yrs' : '—' }}</td>
+              <td>
+                <div class="skill-chips">
+                  @for (s of req.requiredSkills; track s.name) {
+                    <span class="skill-tag">{{ s.name }}</span>
+                  }
+                  @if (req.requiredSkills.length === 0) {
+                    <span class="text-muted">—</span>
+                  }
+                </div>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="badgeClass(req.status)">
+                  {{ req.status }}
+                </span>
+              <td>
+                <a [routerLink]="['/staffing-requests', req.id, 'matches']" class="btn-match">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                  AI Match
+                </a>
+              </td>
+            </tr>
+          }
+          @if (filtered.length === 0) {
+            <tr>
+              <td colspan="7" class="empty-state">No staffing requests found. Click "New Request" to create one.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+
+  @if (showMatchModal) {
+    <div class="modal-backdrop" (click)="closeMatchModal()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <div>
+            <h3>Candidate AI Matching</h3>
+            <p class="modal-sub">Matching recommendations for: <strong>{{ selectedRequest?.title }}</strong> ({{ selectedRequest?.clientName }})</p>
+          </div>
+          <button class="close-btn" (click)="closeMatchModal()">×</button>
+        </header>
+
+        <div class="modal-body">
+          @if (loadingMatches) {
+            <div class="loading-matches">Analyzing candidate talent pool with AI scoring engine...</div>
+          } @else {
+            <div class="matches-list">
+              @for (match of selectedRequestMatches; track match.consultant.id) {
+                <div class="match-card">
+                  <div class="match-header">
+                    <div class="consultant-info">
+                      <div class="avatar">{{ match.consultant.name.charAt(0).toUpperCase() }}</div>
+                      <div>
+                        <strong>{{ match.consultant.name }}</strong>
+                        <span class="sub-info">{{ match.consultant.email }} · {{ match.consultant.yearsOfExperience }} yrs exp</span>
+                      </div>
+                    </div>
+                    <div class="score-badge" [class.high]="match.matchScore >= 80" [class.med]="match.matchScore >= 50 && match.matchScore < 80" [class.low]="match.matchScore < 50">
+                      {{ match.matchScore | number:'1.0-1' }}% Match
+                    </div>
+                  </div>
+
+                  <p class="match-reason">{{ match.matchReason }}</p>
+
+                  <div class="skills-breakdown">
+                    @if (match.matchedSkills.length > 0) {
+                      <div class="skills-row">
+                        <span class="label text-success">Matched Skills:</span>
+                        @for (s of match.matchedSkills; track s) {
+                          <span class="chip chip-success">{{ s }}</span>
+                        }
+                      </div>
+                    }
+                    @if (match.missingSkills.length > 0) {
+                      <div class="skills-row">
+                        <span class="label text-muted">Missing Skills:</span>
+                        @for (s of match.missingSkills; track s) {
+                          <span class="chip chip-muted">{{ s }}</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+              @if (selectedRequestMatches.length === 0) {
+                <div class="empty-state">No consultants available in database for matching.</div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

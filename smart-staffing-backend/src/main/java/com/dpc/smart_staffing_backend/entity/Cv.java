@@ -32,6 +32,18 @@ public class Cv {
     @Column(nullable = false)
     private Instant uploadedAt;
 
+    @Column(name = "extracted_text", columnDefinition = "TEXT")
+    private String extractedText;
+
+    @Column(name = "extracted_email")
+    private String extractedEmail;
+
+    @Column(name = "extracted_phone")
+    private String extractedPhone;
+
+    @Column(name = "extracted_skills_text", columnDefinition = "TEXT")
+    private String extractedSkillsText;
+
     @OneToOne(optional = false)
     @JoinColumn(name = "consultant_id", nullable = false, unique = true)
     private Consultant consultant;
@@ -53,4 +65,16 @@ public class Cv {
     public String getContentType() { return contentType; }
     public Instant getUploadedAt() { return uploadedAt; }
     public Consultant getConsultant() { return consultant; }
+
+    public String getExtractedText() { return extractedText; }
+    public void setExtractedText(String extractedText) { this.extractedText = extractedText; }
+
+    public String getExtractedEmail() { return extractedEmail; }
+    public void setExtractedEmail(String extractedEmail) { this.extractedEmail = extractedEmail; }
+
+    public String getExtractedPhone() { return extractedPhone; }
+    public void setExtractedPhone(String extractedPhone) { this.extractedPhone = extractedPhone; }
+
+    public String getExtractedSkillsText() { return extractedSkillsText; }
+    public void setExtractedSkillsText(String extractedSkillsText) { this.extractedSkillsText = extractedSkillsText; }
 }

@@ -1,0 +1,124 @@
+<div class="reports-page">
+  <header class="page-top-header">
+    <div class="header-left">
+      <h1 class="page-title">Executive Staffing Reports</h1>
+      <p class="page-subtitle">Talent analytics, recruitment velocity, and consultant utilization metrics.</p>
+    </div>
+
+    <div class="header-actions">
+      <div class="timeframe-toggle">
+        <button class="tf-btn" [class.active]="timeframe === 'quarter'" (click)="setTimeframe('quarter')">Q3 2026</button>
+        <button class="tf-btn" [class.active]="timeframe === 'year'" (click)="setTimeframe('year')">Year-to-Date</button>
+      </div>
+
+      <button class="btn-secondary" (click)="exportCsv()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Export CSV
+      </button>
+
+      <button class="btn-primary" (click)="exportPdf()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        Print / PDF
+      </button>
+    </div>
+  </header>
+
+  <!-- Metric Overview Cards -->
+  <section class="stats-overview-grid">
+    <div class="card-panel metric-card">
+      <span class="metric-label">TOTAL PLACEMENTS</span>
+      <strong class="metric-value">{{ totalPlacements }}</strong>
+      <span class="metric-sub text-success">+18% vs last quarter</span>
+    </div>
+
+    <div class="card-panel metric-card">
+      <span class="metric-label">BENCH UTILIZATION</span>
+      <strong class="metric-value">{{ benchUtilization }}%</strong>
+      <span class="metric-sub text-success">Target: &gt; 70%</span>
+    </div>
+
+    <div class="card-panel metric-card">
+      <span class="metric-label">AVG TIME-TO-FILL</span>
+      <strong class="metric-value">{{ avgTimeToFill }} Days</strong>
+      <span class="metric-sub text-success">-4 days faster with AI matching</span>
+    </div>
+
+    <div class="card-panel metric-card">
+      <span class="metric-label">INTERVIEW PASS RATE</span>
+      <strong class="metric-value">{{ interviewSuccessRate }}%</strong>
+      <span class="metric-sub text-success">+12% higher precision</span>
+    </div>
+  </section>
+
+  <!-- Two Column Charts Section -->
+  <div class="reports-grid">
+    <!-- Left: Technology Demand Distribution -->
+    <div class="card-panel report-card">
+      <h3>Talent Demand by Technology Stack</h3>
+      <p class="card-sub">Distribution of required skillsets across staffing requisitions.</p>
+
+      <div class="skills-demand-list">
+        <div class="demand-row">
+          <div class="label-row">
+            <span>Frontend (React, TypeScript, Angular)</span>
+            <strong>38%</strong>
+          </div>
+          <div class="track-bar"><div class="fill-bar bg-blue" style="width: 38%"></div></div>
+        </div>
+
+        <div class="demand-row">
+          <div class="label-row">
+            <span>Cloud &amp; DevOps (Kubernetes, AWS, Terraform)</span>
+            <strong>32%</strong>
+          </div>
+          <div class="track-bar"><div class="fill-bar bg-teal" style="width: 32%"></div></div>
+        </div>
+
+        <div class="demand-row">
+          <div class="label-row">
+            <span>Data Engineering (Spark, Airflow, Python)</span>
+            <strong>18%</strong>
+          </div>
+          <div class="track-bar"><div class="fill-bar bg-purple" style="width: 18%"></div></div>
+        </div>
+
+        <div class="demand-row">
+          <div class="label-row">
+            <span>Backend Services (Java, Spring Boot, PostgreSQL)</span>
+            <strong>12%</strong>
+          </div>
+          <div class="track-bar"><div class="fill-bar bg-amber" style="width: 12%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Placements Velocity by Month -->
+    <div class="card-panel report-card">
+      <h3>Monthly Placement Velocity</h3>
+      <p class="card-sub">Successful consultant match-to-placement conversions.</p>
+
+      <div class="bar-chart-container">
+        <div class="chart-column">
+          <div class="bar-pill" style="height: 45%"><span class="bar-num">5</span></div>
+          <span class="col-name">May</span>
+        </div>
+        <div class="chart-column">
+          <div class="bar-pill" style="height: 60%"><span class="bar-num">7</span></div>
+          <span class="col-name">Jun</span>
+        </div>
+        <div class="chart-column">
+          <div class="bar-pill" style="height: 75%"><span class="bar-num">9</span></div>
+          <span class="col-name">Jul</span>
+        </div>
+        <div class="chart-column">
+          <div class="bar-pill" style="height: 90%"><span class="bar-num">12</span></div>
+          <span class="col-name">Aug</span>
+        </div>
+        <div class="chart-column">
+          <div class="bar-pill active" style="height: 80%"><span class="bar-num">10</span></div>
+          <span class="col-name">Sep (Est.)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

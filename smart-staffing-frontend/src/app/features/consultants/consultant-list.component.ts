@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
 import { ConsultantService } from '../../core/consultant.service';
@@ -21,10 +21,18 @@ export class ConsultantListComponent implements OnInit {
   availabilityFilter = '';
   locationFilter = '';
 
-  constructor(private readonly consultantsApi: ConsultantService) {}
+  constructor(
+    private readonly consultantsApi: ConsultantService,
+    private readonly route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
-    this.load();
+    this.route.queryParamMap.subscribe(qp => {
+      if (qp.get('q')) {
+        this.search = qp.get('q')!;
+      }
+      this.load();
+    });
   }
 
   load(): void {

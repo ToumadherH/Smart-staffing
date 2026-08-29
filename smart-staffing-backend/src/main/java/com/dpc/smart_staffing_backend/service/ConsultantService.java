@@ -13,17 +13,16 @@ import com.dpc.smart_staffing_backend.mapper.ConsultantMapper;
 import com.dpc.smart_staffing_backend.repository.ConsultantRepository;
 import com.dpc.smart_staffing_backend.repository.CvRepository;
 import com.dpc.smart_staffing_backend.repository.SkillRepository;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.core.io.Resource;
 
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-// Business logic for consultants lives here: controllers stay thin, repositories stay
-// focused on persistence. Read-only by default; individual write methods override that.
 @Service
 @Transactional(readOnly = true)
 public class ConsultantService {
@@ -32,24 +31,31 @@ public class ConsultantService {
     private final SkillRepository skillRepository;
     private final CvRepository cvRepository;
     private final CvStorageService cvStorageService;
+    private final CvExtractionService cvExtractionService;
     private final ConsultantMapper mapper;
 
     public ConsultantService(ConsultantRepository consultantRepository,
                               SkillRepository skillRepository,
                               CvRepository cvRepository,
                               CvStorageService cvStorageService,
+                              CvExtractionService cvExtractionService,
                               ConsultantMapper mapper) {
         this.consultantRepository = consultantRepository;
         this.skillRepository = skillRepository;
         this.cvRepository = cvRepository;
         this.cvStorageService = cvStorageService;
+        this.cvExtractionService = cvExtractionService;
         this.mapper = mapper;
     }
 
-    public List<ConsultantResponseDTO> getAllConsultants() {
+    public List<ConsultantResponseDTO> listAllConsultants() {
         return consultantRepository.findAll().stream()
                 .map(mapper::toResponseDTO)
                 .toList();
+    }
+
+    public List<ConsultantResponseDTO> getAllConsultants() {
+        return listAllConsultants();
     }
 
     public ConsultantResponseDTO getConsultantById(Long id) {
@@ -59,7 +65,7 @@ public class ConsultantService {
     @Transactional
     public ConsultantResponseDTO createConsultant(ConsultantRequestDTO dto) {
         if (consultantRepository.existsByEmail(dto.email())) {
-            throw new EmailAlreadyExistsException("A consultant with email " + dto.email() + " already exists");
+            throw new EmailAlreadyExistsException("A consultant with email '" + dto.email() + "' already exists.");
         }
 
         Consultant consultant = mapper.toEntity(dto);
@@ -73,17 +79,15 @@ public class ConsultantService {
     public ConsultantResponseDTO updateConsultant(Long id, ConsultantRequestDTO dto) {
         Consultant consultant = findConsultantOrThrow(id);
 
-        boolean emailChanged = !consultant.getEmail().equalsIgnoreCase(dto.email());
-        if (emailChanged && consultantRepository.existsByEmail(dto.email())) {
-            throw new EmailAlreadyExistsException("A consultant with email " + dto.email() + " already exists");
+        if (!consultant.getEmail().equalsIgnoreCase(dto.email()) && consultantRepository.existsByEmail(dto.email())) {
+            throw new EmailAlreadyExistsException("A consultant with email '" + dto.email() + "' already exists.");
         }
 
         mapper.updateEntity(consultant, dto);
         consultant.setSkills(resolveSkills(dto.skills()));
 
-        // No explicit save(): 'consultant' is a managed entity inside this transaction,
-        // so Hibernate flushes the changes automatically at commit (dirty checking).
-        return mapper.toResponseDTO(consultant);
+        Consultant saved = consultantRepository.save(consultant);
+        return mapper.toResponseDTO(saved);
     }
 
     @Transactional
@@ -101,14 +105,42 @@ public class ConsultantService {
         String storedFileName = cvStorageService.store(file);
         Cv previousCv = consultant.getCv();
         Cv cv = new Cv(file.getOriginalFilename(), storedFileName, file.getContentType(), java.time.Instant.now(), consultant);
-        consultant.setCv(cv);
-        Cv saved = cvRepository.save(cv);
+
+        // Perform CV extraction
+        try (InputStream is = cvStorageService.load(storedFileName).getInputStream()) {
+            CvExtractionService.ExtractionResult result = cvExtractionService.extract(is, file.getOriginalFilename());
+            cv.setExtractedText(result.extractedText());
+            cv.setExtractedEmail(result.extractedEmail());
+            cv.setExtractedPhone(result.extractedPhone());
+
+            if (!result.extractedSkills().isEmpty()) {
+                String skillsListStr = String.join(", ", result.extractedSkills());
+                cv.setExtractedSkillsText(skillsListStr);
+
+                // Auto-associate extracted skills with consultant without creating duplicate Skill records
+                Set<Skill> currentSkills = consultant.getSkills();
+                for (String skillName : result.extractedSkills()) {
+                    Skill skill = skillRepository.findByNameIgnoreCase(skillName)
+                            .orElseGet(() -> skillRepository.save(new Skill(skillName, "Technical")));
+                    currentSkills.add(skill);
+                }
+            }
+        } catch (Exception e) {
+            org.slf4j.LoggerFactory.getLogger(ConsultantService.class).warn("Failed to extract CV content for consultant {}: {}", consultantId, e.getMessage(), e);
+        }
 
         if (previousCv != null) {
+            consultant.setCv(null);
+            cvRepository.delete(previousCv);
+            cvRepository.flush();
             cvStorageService.delete(previousCv.getStoredFileName());
         }
-        return new CvResponseDTO(saved.getId(), saved.getFileName(), saved.getContentType(), saved.getUploadedAt(),
-                "/api/consultants/" + consultantId + "/cv/download");
+
+        consultant.setCv(cv);
+        Cv saved = cvRepository.save(cv);
+        consultantRepository.save(consultant);
+
+        return mapper.toResponseDTO(consultant).cv();
     }
 
     public CvFile downloadCv(Long consultantId) {
@@ -124,9 +156,6 @@ public class ConsultantService {
                 .orElseThrow(() -> new ResourceNotFoundException("Consultant not found with id " + id));
     }
 
-    // Reuses an existing skill by name (case-insensitive) or creates it on the fly.
-    // New skills must be saved explicitly here: the Consultant-Skill relationship has
-    // no cascade, so an unsaved (transient) Skill would fail when the consultant saves.
     private Set<Skill> resolveSkills(List<SkillDTO> skillDTOs) {
         if (skillDTOs == null || skillDTOs.isEmpty()) {
             return new HashSet<>();
@@ -134,8 +163,9 @@ public class ConsultantService {
 
         Set<Skill> skills = new HashSet<>();
         for (SkillDTO skillDTO : skillDTOs) {
-            Skill skill = skillRepository.findByNameIgnoreCase(skillDTO.name())
-                    .orElseGet(() -> skillRepository.save(new Skill(skillDTO.name(), skillDTO.category())));
+            if (skillDTO.name() == null || skillDTO.name().isBlank()) continue;
+            Skill skill = skillRepository.findByNameIgnoreCase(skillDTO.name().trim())
+                    .orElseGet(() -> skillRepository.save(new Skill(skillDTO.name().trim(), skillDTO.category() != null ? skillDTO.category() : "General")));
             skills.add(skill);
         }
         return skills;

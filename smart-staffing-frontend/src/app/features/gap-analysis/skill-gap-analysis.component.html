@@ -1,0 +1,253 @@
+<div class="gap-analysis-page">
+  <!-- Header & Actions -->
+  <header class="page-top-header">
+    <div class="header-left">
+      <div class="breadcrumb-row">
+        <span class="req-tag">Req: REQ-{{ request?.id }}</span>
+        <span class="bc-sep">&gt;</span>
+        <span class="bc-role">{{ request?.title }}</span>
+      </div>
+      <h1 class="page-title">Skill Gap Analysis</h1>
+      <p class="page-subtitle">
+        Comparing {{ consultant?.name }} (Consultant ID: AC-{{ consultant?.id }}) against project requirements.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-secondary export-btn" (click)="exportReport()">
+        Export Report
+      </button>
+      <button class="btn-primary schedule-btn" (click)="openScheduleModal()">
+        Schedule Interview
+      </button>
+    </div>
+  </header>
+
+  @if (error) {
+    <div class="error-banner card-panel">{{ error }}</div>
+  }
+
+  <!-- 1. Top Summary Card -->
+  <section class="card-panel match-summary-card">
+    <div class="gauge-col">
+      <div class="circular-score">
+        <svg class="score-svg" viewBox="0 0 100 100">
+          <circle class="score-bg-circle" cx="50" cy="50" r="40" fill="none" stroke="#E0E7FF" stroke-width="7" />
+          <circle class="score-progress-circle" cx="50" cy="50" r="40" fill="none" stroke="#2563EB" stroke-width="7.5"
+                  stroke-dasharray="251.2"
+                  [style.stroke-dashoffset]="251.2 - (251.2 * score) / 100" />
+        </svg>
+        <span class="score-value">{{ score }}%</span>
+      </div>
+    </div>
+
+    <div class="summary-text-col">
+      <h2 class="grade-title">{{ matchGrade }}</h2>
+      <p class="summary-desc">{{ matchSummary }}</p>
+    </div>
+
+    <div class="stats-counters-col">
+      <div class="stat-box">
+        <span class="stat-label">REQUIRED</span>
+        <strong class="stat-num">{{ requiredCount }} Skill{{ requiredCount !== 1 ? 's' : '' }}</strong>
+      </div>
+
+      <div class="stat-box">
+        <span class="stat-label">MATCHED</span>
+        <strong class="stat-num text-success">{{ matchedCount }} Matched</strong>
+      </div>
+
+      <div class="stat-box">
+        <span class="stat-label">MISSING</span>
+        <strong class="stat-num text-danger">{{ missingCount }} Missing</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Detailed Mapping Section -->
+  <section class="card-panel detailed-mapping-card">
+    <div class="mapping-header-row">
+      <h2>Detailed Mapping</h2>
+      <div class="legend-row">
+        <span class="legend-item"><span class="legend-dot dot-exact"></span> Exact Match</span>
+        <span class="legend-item"><span class="legend-dot dot-partial"></span> Related/Partial</span>
+        <span class="legend-item"><span class="legend-dot dot-missing"></span> Missing</span>
+      </div>
+    </div>
+
+    <!-- Mapping Grid Layout -->
+    <div class="mapping-container">
+      <div class="column-labels-row">
+        <span class="col-head">PROJECT REQUIREMENTS</span>
+        <span class="col-head right-head">
+          <span class="profile-avatar-circle"></span>
+          {{ consultant?.name?.toUpperCase() || "ALEX CHEN'S" }} PROFILE
+        </span>
+      </div>
+
+      <!-- Mapping Rows -->
+      <div class="mapping-items-list">
+        @for (item of mappings; track item.reqName; let idx = $index) {
+          <div class="mapping-row">
+            <!-- Left: Requirement Card -->
+            <div class="requirement-box">
+              <strong class="req-title">{{ item.reqName }}</strong>
+              <span class="req-domain">{{ item.reqCategory }}</span>
+              <span class="anchor-dot left-dot"></span>
+            </div>
+
+            <!-- Middle: Connector Curve Line -->
+            <div class="connector-area">
+              <svg class="connector-svg" viewBox="0 0 100 40" preserveAspectRatio="none">
+                @if (item.matchType === 'EXACT') {
+                  <path d="M 0 20 L 100 20" stroke="#0D9488" stroke-width="2" stroke-dasharray="3,3" fill="none" />
+                } @else if (item.matchType === 'PARTIAL') {
+                  <path d="M 0 20 C 40 20, 60 20, 100 20" stroke="#D97706" stroke-width="2" stroke-dasharray="3,3" fill="none" />
+                } @else {
+                  <path d="M 0 20 C 40 20, 60 20, 100 20" stroke="#DC2626" stroke-width="2" stroke-dasharray="3,3" fill="none" />
+                }
+              </svg>
+              @if (item.matchType === 'PARTIAL') {
+                <div class="connector-node-icon" title="Semantic AI Similarity Match">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8"></path></svg>
+                </div>
+              }
+            </div>
+
+            <!-- Right: Profile Skill Card / Missing Alert -->
+            <div class="profile-box-wrapper">
+              @if (item.matchType === 'EXACT') {
+                <div class="profile-skill-card exact-card">
+                  <span class="status-indicator-bar exact-bar"></span>
+                  <div class="card-content">
+                    <strong class="skill-name">{{ item.profileSkillName }}</strong>
+                    <span class="skill-level">{{ item.profileProficiency }}</span>
+                  </div>
+                </div>
+              } @else if (item.matchType === 'PARTIAL') {
+                <div class="profile-skill-card partial-card">
+                  <span class="status-indicator-bar partial-bar"></span>
+                  <div class="card-content">
+                    <strong class="skill-name">{{ item.profileSkillName }}</strong>
+                    <span class="skill-level">{{ item.profileProficiency }}</span>
+                  </div>
+                </div>
+              } @else {
+                <div class="missing-alert-box">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                  <span>{{ item.missingNote }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Suggested Upskilling Path Section -->
+  @if (upskillingCourses.length > 0) {
+    <section class="upskilling-section">
+      <div class="section-title-row">
+        <div class="icon-grad">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+          </svg>
+        </div>
+        <h2>Suggested Upskilling Path</h2>
+      </div>
+
+      <div class="upskilling-cards-grid">
+        @for (course of upskillingCourses; track course.title) {
+          <div class="card-panel course-card">
+            <div class="course-header">
+              <span class="priority-pill" [class.priority-high]="course.priority === 'High Priority'" [class.priority-medium]="course.priority === 'Medium Priority'">
+                {{ course.priority }}
+              </span>
+              <button class="bookmark-btn" title="Bookmark Course">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#98A2B3" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+              </button>
+            </div>
+
+            <h3 class="course-title">{{ course.title }}</h3>
+            <p class="course-desc">{{ course.description }}</p>
+
+            <div class="course-footer">
+              <div class="course-meta">
+                <span class="meta-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  {{ course.duration }}
+                </span>
+                <span class="meta-item platform-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                  {{ course.platform }}
+                </span>
+              </div>
+
+              <button class="assign-btn" [class.assigned]="course.assigned" (click)="assignCourse(course)">
+                {{ course.assigned ? '✓ Assigned' : 'Assign' }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- Schedule Interview Modal -->
+  @if (showScheduleModal) {
+    <div class="modal-backdrop" (click)="closeScheduleModal()">
+      <div class="modal-card" (click)="$event.stopPropagation()">
+        <header class="modal-header">
+          <h3>Schedule Interview</h3>
+          <button class="close-btn" (click)="closeScheduleModal()">×</button>
+        </header>
+
+        @if (scheduleSuccess) {
+          <div class="success-banner">✓ Interview scheduled successfully! Redirecting...</div>
+        }
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Candidate</label>
+            <input [value]="consultant?.name + ' (' + consultant?.email + ')'" disabled>
+          </div>
+
+          <div class="form-group">
+            <label>Staffing Request</label>
+            <input [value]="request?.title + ' - ' + request?.clientName" disabled>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" [(ngModel)]="interviewDate">
+            </div>
+            <div class="form-group">
+              <label>Time</label>
+              <input type="time" [(ngModel)]="interviewTime">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Location / Platform</label>
+            <input [(ngModel)]="interviewLocation" placeholder="Google Meet, Zoom, etc.">
+          </div>
+
+          <div class="form-group">
+            <label>Notes / Agenda</label>
+            <textarea [(ngModel)]="interviewNotes" rows="3"></textarea>
+          </div>
+        </div>
+
+        <footer class="modal-footer">
+          <button class="btn-secondary" (click)="closeScheduleModal()">Cancel</button>
+          <button class="btn-primary" (click)="confirmSchedule()" [disabled]="scheduling || scheduleSuccess">
+            {{ scheduling ? 'Scheduling...' : 'Confirm Schedule' }}
+          </button>
+        </footer>
+      </div>
+    </div>
+  }
+</div>

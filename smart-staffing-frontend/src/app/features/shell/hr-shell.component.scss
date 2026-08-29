@@ -18,7 +18,7 @@
 
 .brand-header {
   height: 70px;
-  padding: 0 20px;
+  padding: 0 16px;
   display: flex;
   align-items: center;
   border-bottom: 1px solid var(--border-color);
@@ -26,13 +26,34 @@
   .logo-link {
     display: inline-flex;
     align-items: center;
+    gap: 10px;
     text-decoration: none;
   }
 
   .sidebar-logo {
-    height: 42px;
+    height: 38px;
     width: auto;
     object-fit: contain;
+  }
+
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+
+    .brand-acronym {
+      font-size: 16px;
+      font-weight: 800;
+      color: #1E40AF;
+      letter-spacing: -0.01em;
+    }
+
+    .brand-sub {
+      font-size: 10px;
+      font-weight: 600;
+      color: #475467;
+      white-space: nowrap;
+    }
   }
 }
 
@@ -182,6 +203,70 @@
   }
 }
 
+.notification-wrapper {
+  position: relative;
+
+  .notification-dropdown {
+    position: absolute;
+    top: 50px;
+    right: -20px;
+    width: 320px;
+    background: #FFFFFF;
+    border: 1px solid #EAECF0;
+    border-radius: 10px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    padding: 0;
+    z-index: 100;
+    overflow: hidden;
+
+    .notif-header {
+      padding: 12px 16px;
+      background: #F9FAFB;
+      border-bottom: 1px solid #EAECF0;
+      font-size: 13px;
+      font-weight: 700;
+      color: #101828;
+    }
+
+    .notif-list {
+      display: flex;
+      flex-direction: column;
+
+      .notif-item {
+        padding: 12px 16px;
+        border-bottom: 1px solid #F2F4F7;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        &:hover {
+          background: #F8FAFC;
+        }
+
+        .notif-title {
+          font-size: 13px;
+          font-weight: 600;
+          color: #101828;
+        }
+
+        .notif-sub {
+          font-size: 12px;
+          color: #475467;
+        }
+
+        .notif-time {
+          font-size: 11px;
+          color: #98A2B3;
+        }
+      }
+    }
+  }
+}
+
 .notification-badge {
   position: absolute;
   top: 9px;
@@ -223,7 +308,7 @@
     grid-template-columns: 80px 1fr;
   }
 
-  .brand-header .sidebar-logo {
+  .brand-header .brand-text {
     display: none;
   }
 

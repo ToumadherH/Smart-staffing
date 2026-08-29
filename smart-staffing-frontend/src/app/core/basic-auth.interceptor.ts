@@ -8,7 +8,8 @@ export const basicAuthInterceptor: HttpInterceptorFn = (request, next) => {
   const auth = inject(AuthService);
   const router = inject(Router);
   const authorization = auth.authorization;
-  const authenticatedRequest = authorization && request.url.startsWith('http://localhost:8080/api')
+  const isApiRequest = request.url.includes('/api/') || request.url.startsWith('/api');
+  const authenticatedRequest = authorization && isApiRequest
     ? request.clone({ setHeaders: { Authorization: authorization } })
     : request;
 

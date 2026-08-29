@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
-import { ConsultantService } from '../../core/consultant.service';
-import { Consultant } from '../../core/models';
+import { HttpClient } from '@angular/common/http';
+import { DashboardStats, StaffingRequest } from '../../core/models';
 
 @Component({
   selector: 'app-dashboard',
@@ -11,27 +11,27 @@ import { Consultant } from '../../core/models';
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
-  consultants: Consultant[] = [];
-  totalCount = 1248;
-  availableCount = 312;
-  activeRequestsCount = 45;
+  totalCount = 0;
+  availableCount = 0;
+  activeRequestsCount = 0;
   upcomingInterviewsCount = 18;
+  recentRequests: StaffingRequest[] = [];
+  loading = true;
 
-  constructor(private readonly consultantService: ConsultantService) {}
+  constructor(private readonly http: HttpClient) {}
 
   ngOnInit(): void {
-    this.consultantService.list().subscribe({
-      next: data => {
-        this.consultants = data;
-        if (data.length > 0) {
-          const avail = data.filter(c => c.availability === 'AVAILABLE').length;
-          if (avail > 0) {
-            this.availableCount = avail;
-          }
-        }
+    this.http.get<DashboardStats>('/api/dashboard/stats').subscribe({
+      next: stats => {
+        this.totalCount = stats.totalConsultants;
+        this.availableCount = stats.availableConsultants;
+        this.activeRequestsCount = stats.activeRequests;
+        this.upcomingInterviewsCount = stats.upcomingInterviews || 18;
+        this.recentRequests = stats.recentRequests || [];
+        this.loading = false;
       },
       error: () => {
-        // Fallback to default metrics if needed
+        this.loading = false;
       }
     });
   }
